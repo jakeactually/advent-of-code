@@ -32,12 +32,12 @@ int main() {
             for (int s = 1; s < 300 - max + 1; s++) {
                 sum += cells[x][y];
 
-                for (int j = y; j < s; j++) {
-                    sum += cells[j][x];
+                for (int j = 0; j < s - 1; j++) {
+                    sum += cells[j][x + s];
                 }
 
-                for (int i = x; i < s; i++) {
-                    sum += cells[y][i];
+                for (int i = 0; i < s - 1; i++) {
+                    sum += cells[y + s][i];
                 }
 
                 records[c].x = x;
