@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <stdio.h>
 
 int cells[300][300];
 int totals[300 * 300];
