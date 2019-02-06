@@ -35,11 +35,11 @@ passes nanos offsets power = if power > 0
         let
             info = offsets >>= pass nanos power
             mx = maximum $ map amount info
-            mxs = take 1 $ filter ((== mx) . amount) info
+            mxs = take 5 $ filter ((== mx) . amount) info
             mn = minimumBy (compare `on` manhathan (Vec3 0 0 0) . coord) mxs
         in
-            mapM_ print mxs >>
-            passes nanos [coord mn] (power - 1)
+            print mn >>
+            passes nanos (map coord mxs) (power - 1)
     else
         return ()
 
