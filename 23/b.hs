@@ -1,5 +1,6 @@
 import Data.List
 import Data.Function
+import Data.Maybe
 import Text.Parsec
 import Text.Parsec.Char
 
@@ -16,34 +17,37 @@ data Cube = Cube
     , size :: Int
     } deriving Show
 
+data Contact = Contact
+    { full :: Bool
+    , coord :: Vec3
+    , amount :: Int
+    } deriving Show
+
 main :: IO ()
 main = do
     text <- readFile "input.txt"
     let nanos = map parseNano $ lines text
-    passes nanos (Vec3 (-50000000) (-50000000) (-50000000)) 30
+    passes nanos [Vec3 (-50000000) (-50000000) (-50000000)] 30
 
-passes :: [Nano] -> Vec3 -> Int -> IO ()
-passes nanos offset power = if power > 0
+passes :: [Nano] -> [Vec3] -> Int -> IO ()
+passes nanos offsets power = if power > 0
     then
         let
-            info = pass nanos power offset
-            mx = maximum $ map snd info
-            mxs = filter ((== mx) . snd) info
-            mn = minimumBy (compare `on` manhathan (Vec3 0 0 0) . cpos . fst) mxs
+            info = offsets >>= pass nanos power
+            mx = maximum $ map amount info
+            mxs = take 1 $ filter ((== mx) . amount) info
+            mn = minimumBy (compare `on` manhathan (Vec3 0 0 0) . coord) mxs
         in
             mapM_ print mxs >>
-            passes nanos (cpos $ fst mn) (power - 1)
+            passes nanos [coord mn] (power - 1)
     else
         return ()
 
-pass :: [Nano] -> Int -> Vec3 -> [(Cube, Int)]
+pass :: [Nano] -> Int -> Vec3 -> [Contact]
 pass nanos power offset = info
     where
         g = grid offset power
-        info = map (\cube -> (cube, touchedBy cube nanos)) g
-
-touchedBy :: Cube -> [Nano] -> Int
-touchedBy c ns = length $ filter id $ map (`touches` c) ns
+        info = mapMaybe (`contact` nanos) g
 
 grid :: Vec3 -> Int -> [Cube]
 grid (Vec3 ox oy oz) power = do
@@ -56,6 +60,12 @@ grid (Vec3 ox oy oz) power = do
         cell = div size 2
         dimension = [0, cell .. size - cell]
 
+contact :: Cube -> [Nano] -> Maybe Contact
+contact cube nanos = let is = filter (`touches` cube) nanos in
+    if not $ null is
+        then Just $ Contact (all (insideNano cube) is) (cpos cube) (length is)
+        else Nothing
+
 touches :: Nano -> Cube -> Bool
 touches (Nano (Vec3 x1 y1 z1) r) (Cube (Vec3 x2 y2 z2) s) = not
      $ x1 - r >= x2 + s
@@ -64,6 +74,9 @@ touches (Nano (Vec3 x1 y1 z1) r) (Cube (Vec3 x2 y2 z2) s) = not
     || y2 >= y1 + r
     || z1 - r >= z2 + s
     || z2 >= z1 + r
+
+insideNano :: Cube -> Nano -> Bool
+insideNano cube nano = cube `inside` subCube nano
 
 inside :: Cube -> Cube -> Bool
 inside (Cube (Vec3 x1 y1 z1) s1) (Cube (Vec3 x2 y2 z2) s2) =
@@ -79,6 +92,8 @@ subCube (Nano (Vec3 x y z) r) = Cube (Vec3 nx ny nz) size
         ny =  y - offset
         nz = z - offset
         size = r + 1 - mod r 2
+
+-- Parse
 
 parseNano :: String -> Nano
 parseNano str = let Right nano = parse nanoParser "" str in nano
