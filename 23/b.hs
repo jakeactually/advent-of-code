@@ -1,5 +1,8 @@
 module Day23B where
 
+-- Based on this amazing solution
+-- https://www.reddit.com/r/adventofcode/comments/a8s17l/2018_day_23_solutions/ecdqzdg?utm_source=share&utm_medium=web2x
+
 import Data.List
 import Text.Parsec
 
