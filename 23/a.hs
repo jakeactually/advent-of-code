@@ -1,3 +1,5 @@
+module Day23A where
+
 import Data.List
 import Data.Function
 import Text.Parsec
