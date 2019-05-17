@@ -1,3 +1,5 @@
+module Day18A where
+    
 import Data.Array
 import Data.List
 import Debug.Trace

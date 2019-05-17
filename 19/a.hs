@@ -1,3 +1,5 @@
+module Day19A where
+
 import Data.Bits
 import Data.Map as M (Map, (!), fromList)
 import Data.Sequence as S (Seq, fromList, index)

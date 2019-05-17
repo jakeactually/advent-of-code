@@ -1,3 +1,5 @@
+module Day14A where
+
 import Data.Sequence as S
 
 main :: IO ()

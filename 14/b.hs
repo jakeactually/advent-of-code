@@ -1,3 +1,5 @@
+module Day14B where
+    
 import Data.Array.IO
 import Data.Array.MArray
 

@@ -1,3 +1,5 @@
+module Day22B where
+    
 import Data.Array as A (Array, (!), (//), listArray)
 import Data.Array.IO
 import Data.Array.MArray

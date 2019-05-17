@@ -1,3 +1,5 @@
+module Day18B where
+    
 import Data.Array
 import Data.List
 

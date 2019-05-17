@@ -1,3 +1,5 @@
+module Day20BSW where
+
 import Data.Array
 import Data.Array.IO
 import Data.Array.MArray

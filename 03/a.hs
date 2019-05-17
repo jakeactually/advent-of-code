@@ -1,3 +1,5 @@
+module Day3A where
+
 import Data.Array
 
 data Rect = Rect

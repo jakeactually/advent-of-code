@@ -1,3 +1,5 @@
+module Day2B where
+
 main :: IO ()
 main = do
     text <- readFile "input.txt"

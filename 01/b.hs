@@ -1,3 +1,5 @@
+module Day1B where
+
 import Data.Set
 
 main :: IO ()

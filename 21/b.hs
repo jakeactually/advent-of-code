@@ -1,3 +1,5 @@
+module Day21B where
+
 import Data.Bits
 import Data.Function (on)
 import Data.List (minimumBy)

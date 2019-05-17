@@ -1,3 +1,5 @@
+module Day6A where
+
 import Control.Monad
 import Data.Function
 import Data.List

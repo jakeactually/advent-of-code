@@ -1,3 +1,5 @@
+module Day21A where
+    
 import Data.Bits
 
 main :: IO ()

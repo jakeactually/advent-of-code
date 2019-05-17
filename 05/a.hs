@@ -1,3 +1,5 @@
+module Day5A where
+
 import Data.Char
 
 main :: IO ()

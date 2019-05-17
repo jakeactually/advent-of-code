@@ -1,5 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
+module Day13B where
+
 import Control.Arrow
 import Data.Array as A
 import Data.List as L (delete)

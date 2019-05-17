@@ -1,5 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
+module Day13A where
+
 import Control.Arrow
 import Data.Array as A
 import Data.Map as M (Map, (!?), assocs, fromList, insert, delete)

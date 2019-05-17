@@ -1,3 +1,5 @@
+module Day6B where
+
 import Control.Monad
 import Data.List
 import Data.Map.Strict (fromListWith, toList)

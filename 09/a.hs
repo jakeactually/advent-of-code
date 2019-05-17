@@ -1,3 +1,5 @@
+module Day9A where
+
 data Meta = Meta
   { players :: Int
   , total :: Int

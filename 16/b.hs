@@ -1,3 +1,5 @@
+module Day16B where
+    
 import Data.Bits
 import Data.Text (pack, splitOn, unpack)
 

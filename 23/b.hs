@@ -29,8 +29,8 @@ entries (Nano (Vec3 x y z) r) = [(d - r, 1), (d + r + 1, -1)]
 best :: Int -> Int -> Int -> [(Int, Int)] -> Int
 best count maxCount dist points = case points of
     (p : ps) -> if newCount > maxCount
-        then loop newCount newCount newDist ps
-        else loop newCount maxCount dist ps
+        then best newCount newCount newDist ps
+        else best newCount maxCount dist ps
         where
             (newDist, startOrEnd) = p
             newCount = count + startOrEnd

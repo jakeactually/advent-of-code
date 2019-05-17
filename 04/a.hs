@@ -1,3 +1,5 @@
+module Day4A where
+
 import Data.List
 import Data.Function
 import Data.Map (Map, empty, insertWith, toList)

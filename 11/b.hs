@@ -1,5 +1,7 @@
 {-# LANGUAGE TupleSections #-}
 
+module Day11B where
+
 import Control.Monad
 import Data.Array.IO
 import Data.Function

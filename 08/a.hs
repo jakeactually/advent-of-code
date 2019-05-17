@@ -1,3 +1,5 @@
+module Day8A where
+  
 data Node = Node [Node] [Int]
     deriving Show
 

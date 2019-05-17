@@ -1,3 +1,5 @@
+module Day10A where
+    
 import Data.Array ((//), listArray, elems)
 import Data.Bits (shiftR)
 import Data.ByteString as Bs (pack, writeFile)

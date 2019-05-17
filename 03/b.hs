@@ -1,3 +1,5 @@
+module Day3B where
+
 data Rect = Rect
     { rectId :: Int
     , x :: Int

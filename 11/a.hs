@@ -1,3 +1,5 @@
+module Day11A where
+    
 import Control.Monad
 import Data.Array.IO
 import Data.List

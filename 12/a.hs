@@ -1,3 +1,5 @@
+module Day12A where
+  
 import Data.Map ((!?), Map, fromList)
 
 data Rule = Rule State State State State State

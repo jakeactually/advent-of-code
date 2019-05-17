@@ -1,3 +1,5 @@
+module Day7A where
+
 import Data.Char (isUpper)
 import Data.List (null)
 import Data.Map as M (Map, (!), delete, fromList, keys, insertWith)

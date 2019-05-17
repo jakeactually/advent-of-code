@@ -1,3 +1,5 @@
+module Day2A where
+
 import Data.List
 
 main :: IO ()

@@ -1,3 +1,5 @@
+module Day9ASlow where
+
 data Meta = Meta
     { players :: Int
     , total :: Int

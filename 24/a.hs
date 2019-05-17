@@ -1,3 +1,5 @@
+module Day24A where
+
 import Text.Parsec
 import Text.Parsec.Char
 
