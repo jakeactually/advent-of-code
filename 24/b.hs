@@ -25,8 +25,10 @@ main :: IO ()
 main = do
     text <- readFile "input.txt"
     let Right groups = parse infoParser "" text
-    let dic = M.fromList $ zip [0..] groups
-    end <- foldM (\d _ -> loop d) dic [0..1012]
+    let boosted = map (\g -> if groupType g == Inmune then g { attack = attack g + 55 } else g) groups
+    let dic = M.fromList $ zip [0..] boosted
+    end <- foldM (\d _ -> loop d) dic [0..3500]
+    print $ all ((==) Inmune . groupType) $ M.elems end
     print $ sum $ map units $ M.elems end
 
 loop :: M.Map Int Group -> IO (M.Map Int Group)
