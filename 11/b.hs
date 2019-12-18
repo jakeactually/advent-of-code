@@ -1,49 +1,58 @@
-{-# LANGUAGE TupleSections #-}
-
 module Day11B where
 
 import Control.Monad
 import Data.Array.IO
 import Data.Function
-import Data.List
-import Data.Maybe
 
-size :: Int
-size = 300 * 300 - 1
+data Record = Record 
+    {   pos :: (Int, Int)
+    ,   size :: Int
+    ,   total :: Int
+    } deriving (Show, Eq)
+
+instance Ord Record where
+    compare = compare `on` total
 
 main :: IO ()
 main = do
-    arr <- newArray (0, size) 0 :: IO (IOUArray Int Int)    
-    mapM_ (\i -> writeArray arr i $ toPower i) [0..size]
-    areas <- mapM (\i -> mapM (\s -> (, (i, s)) <$> power arr i s) $ sizes i) [0..size]
-    print $ maximumBy (compare `on` fst) $ concat areas
+    arr <- newArray ((0, 0), (299, 299)) 0 :: IO (IOUArray (Int, Int) Int)
+    fillArray arr
+    --records <- mapM (zone arr) (grid 299 (0, 0))
+    --print $ maximum $ concat records
+    mapM_ (zone arr) (grid 299 (0, 0))
 
-toPower :: Int -> Int
-toPower i = power
+fillArray :: IOUArray (Int, Int) Int -> IO ()
+fillArray arr = mapM_ (\coords -> writeArray arr coords (value coords)) (grid 299 (0, 0))
+
+value :: (Int, Int) -> Int
+value (x, y) = hundreds - 5
     where
-        (x', y') = toVec i
-        (x, y) = (x' + 1, y' + 1)
         rackId = x + 10
         start = rackId * y
         processed = (start + 6392) * rackId
-        hundreds = if processed > 99 then div (mod processed 1000) 100 else 0
-        power = hundreds - 5
+        hundreds = if processed > 99 then (processed `mod` 1000) `div` 100 else 0
 
-toVec :: Int -> (Int, Int)
-toVec i = (mod i 300, div i 300)
+grid :: Int -> (Int, Int) -> [(Int, Int)]
+grid s (x, y) = do
+    x' <- [x..x + s]
+    y' <- [y..y + s]
+    return (x', y')
 
-toInt :: (Int, Int) -> Int
-toInt (x, y) = y * 300 + x
+layer :: IOUArray (Int, Int) Int -> Record -> IO Record
+layer arr (Record (x, y) s currentSum) = do
+    let coords = (x + s, y + s) : concat [ [(x + i, y + s), (x + s, y + i)] | i <- [0..s - 1] ]
+    total <- sum <$> mapM (readArray arr) coords
+    return $ Record (x, y) (s + 1) (currentSum + total)
 
-grid :: Int -> Int -> [Int]
-grid i size = let (x, y) = toVec i in do
-    yo <- [0..size - 1]
-    xo <- [0..size - 1]
-    return $ toInt (x + xo, y + yo)
+zone :: IOUArray (Int, Int) Int -> (Int, Int) -> IO [Record]
+zone arr p = do
+    print p
+    zs <- foldM (\(r : rs) _ -> (: r : rs) <$> layer arr r) [Record p 1 1] [1..limit]
+    save zs
+    return zs
+    where
+        (x, y) = p
+        limit = 300 - max x y - 1
 
-sizes :: Int -> [Int]
-sizes i = [1..300 - (max x y)]
-    where (x, y) = toVec i
-
-power :: IOUArray Int Int -> Int -> Int -> IO Int
-power arr i size = foldM (\acc j -> (acc +) <$> readArray arr j) 0 $ grid i size
+save :: [Record] -> IO ()
+save = appendFile "log.txt" . unlines . map show

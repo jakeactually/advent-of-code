@@ -1,50 +1,37 @@
 module Day11A where
-    
-import Control.Monad
-import Data.Array.IO
-import Data.List
-import Data.Maybe
 
-size, limit :: Int
-size = 300 * 300 - 1
-limit = 298 * 298 - 1
+import Data.Array.IO
+import Data.Function
+import Data.List
 
 main :: IO ()
 main = do
-    arr <- newArray (0, size) 0 :: IO (IOUArray Int Int)
-    mapM_ (\i -> writeArray arr i $ toPower i) [0..size]
-    powers <- mapM (\i -> foldM (\acc j -> (acc +) <$> readArray arr j) 0 $ grid i) [0..limit]
-    print $ maximum powers
-    print $ toVec $ fromJust $ elemIndex (maximum powers) powers
+    arr <- newArray ((0, 0), (299, 299)) 0 :: IO (IOUArray (Int, Int) Int)
+    fillArray arr
+    powers <- mapM (coordsToPower arr) (grid 297 (0, 0))
+    print $ maximumBy (compare `on` snd) powers
 
-toPower :: Int -> Int
-toPower i = power
+fillArray :: IOUArray (Int, Int) Int -> IO ()
+fillArray arr = mapM_ (\coords -> writeArray arr coords (value coords)) (grid 299 (0, 0))
+
+value :: (Int, Int) -> Int
+value (x, y) = hundreds - 5
     where
-        (x', y') = toVec i
-        (x, y) = (x' + 1, y' + 1)
         rackId = x + 10
         start = rackId * y
         processed = (start + 6392) * rackId
-        hundreds = if processed > 99 then div (mod processed 1000) 100 else 0
-        power = hundreds - 5
+        hundreds = if processed > 99 then (processed `mod` 1000) `div` 100 else 0
 
-toVec :: Int -> (Int, Int)
-toVec i = (mod i 300, div i 300)
+grid :: Int -> (Int, Int) -> [(Int, Int)]
+grid size (x, y) = do
+    x' <- [x..x + size]
+    y' <- [y..y + size]
+    return (x', y')
 
-toInt :: (Int, Int) -> Int
-toInt (x, y) = y * 300 + x
+coordsToPower :: IOUArray (Int, Int) Int -> (Int, Int) -> IO ((Int, Int), Int)
+coordsToPower arr coords = do
+    p <- power arr (grid 2 coords)
+    return (coords, p)
 
-grid :: Int -> [Int]
-grid i = let (x, y) = toVec i in
-    [ toInt (x, y)
-    , toInt (x + 1, y)
-    , toInt (x + 2, y)
-
-    , toInt (x, y + 1)
-    , toInt (x + 1, y + 1)
-    , toInt (x + 2, y + 1)
-
-    , toInt (x, y + 2)
-    , toInt (x + 1, y + 2)
-    , toInt (x + 2, y + 2)
-    ]
+power :: IOUArray (Int, Int) Int -> [(Int, Int)] -> IO Int
+power arr idxs = sum <$> mapM (readArray arr) idxs
