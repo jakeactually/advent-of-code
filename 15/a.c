@@ -118,15 +118,20 @@ int main() {
 
         i++;
 
-        if (i >= units.length) {
+        if (i >= units.length) {            
+            render(main_map, width, height);
+            printf("%d\n", rounds);
+            
+            char *buffer;
+            size_t bufsize = 32;
+            getline(&buffer, &bufsize, stdin);
+
             i = 0;
             load_units(main_map, width, height, &units);
             rounds++;
         }
     }
     
-    render(main_map, width, height);
-
     int hp = 0;
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
@@ -138,7 +143,7 @@ int main() {
     }
 
     printf("\n");
-    printf("%d rounds, %d hp, %d total", rounds, hp, rounds * hp);
+    printf("%d rounds, %d hp, %d total\n", rounds, hp, rounds * hp);
 
     return 0;
 }

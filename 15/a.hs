@@ -19,7 +19,7 @@ main = do
     text <- readFile "input.txt"
     let cells = Prelude.map toCell text
     arr <- newListArray ((0, 0), (31, 32)) cells :: IO (IOArray (Int, Int) Cell)
-    rounds <- loop arr 1
+    rounds <- loop arr 0
     renderH arr
     putStrLn ""
     ps <- players arr
@@ -32,6 +32,8 @@ loop arr i = do
     ps <- players arr
     continue <- advance arr ps
     render arr
+    print i
+    _ <- getLine
     if continue then loop arr (i + 1) else return i
 
 toCell :: Char -> Cell
@@ -105,9 +107,9 @@ out arr (x, y) = filterM (fmap (not . isWall) . readArray arr) $ allDirs (x, y)
 outs :: IOArray Point Cell -> (Set Point, [Point]) -> IO (Set Point, [Point])
 outs arr (set, points) = do
     ps <- concat <$> mapM (out arr) points
-    let filtered = Prelude.filter (`notMember` set) ps
-    let newSet = Prelude.foldr Data.Set.insert set filtered
-    return (newSet, filtered)
+    let filtered = fromList ps Data.Set.\\ set
+    let newSet = Data.Set.union set filtered
+    return (newSet, toList filtered)
 
 shortest :: IOArray Point Cell -> (Set Point, [Point]) -> Cell -> Int -> IO (Maybe Int)
 shortest arr (set, points) cell level = if Prelude.null points then return Nothing else do
