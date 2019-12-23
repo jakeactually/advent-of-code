@@ -33,7 +33,7 @@ loop arr i = do
     continue <- advance arr ps
     render arr
     print i
-    _ <- getLine
+    --_ <- getLine
     if continue then loop arr (i + 1) else return i
 
 toCell :: Char -> Cell
@@ -127,10 +127,18 @@ advance arr (p : ps) = do
     cell <- readArray arr p
     if not $ isPlayer cell then advance arr ps else do
         movement <- move arr p
-        continue <- case movement of
+        killed <- case movement of
             Just np -> swap arr p np >> attack arr np
             Nothing -> attack arr p
-        if continue then advance arr ps else return False
+        case killed of
+            Just kp -> do
+                -- check for foes
+                ps' <- players arr
+                foes <- filterM (fmap (isFoe cell) . readArray arr) ps'
+                if not $ Prelude.null foes
+                    then advance arr $ Data.List.delete kp ps
+                    else return False  
+            Nothing -> advance arr ps
 advance _ _ = return True
 
 move :: IOArray Point Cell -> Point -> IO (Maybe Point)
@@ -152,24 +160,21 @@ swap arr p1 p2 = do
     writeArray arr p2 p
     writeArray arr p1 Space
 
-attack :: IOArray Point Cell -> Point -> IO Bool
+attack :: IOArray Point Cell -> Point -> IO (Maybe Point)
 attack arr player = do
     cell <- readArray arr player
     dirs <- out arr player
     near <- mapM (readArray arr) dirs
     let foes = Prelude.filter (isFoe cell . snd) $ Prelude.filter (isPlayer . snd) $ zip dirs near
-    if Prelude.null foes then return True else do
+    if Prelude.null foes then return Nothing else do
         let foe = fst $ minimumBy (compare `on` hp . snd) foes
-        damage arr foe
+        killed <- damage arr foe
+        return $ if killed then Just foe else Nothing 
 
 damage :: IOArray Point Cell -> Point -> IO Bool
 damage arr player = do
     p <- readArray arr player
     let nh = hp p - 3
     if nh > 0
-        then writeArray arr player (setHp p nh) >> return True      
-        else do
-            writeArray arr player Space
-            ps <- players arr
-            foes <- filterM (fmap (not . isFoe p) . readArray arr) ps
-            return $ not $ Prelude.null foes
+        then writeArray arr player (setHp p nh) >> return False       
+        else writeArray arr player Space >> return True
