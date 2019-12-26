@@ -1,4 +1,4 @@
-module Day15A where
+module Day15B where
 
 import Control.Monad
 import Data.Array.IO
@@ -12,8 +12,8 @@ type Point = (Int, Int)
 data Cell
     = Wall
     | Space
-    | Elve Int
-    | Gnome Int
+    | Elve Int Int
+    | Gnome Int Int
     | NewLine deriving (Show, Eq)
 
 main :: IO ()
@@ -38,16 +38,16 @@ loop arr i = do
 toCell :: Char -> Cell
 toCell chr = case chr of
     '.' -> Space
-    'E' -> Elve 200
-    'G' -> Gnome 200
+    'E' -> Elve 200 40
+    'G' -> Gnome 200 3
     '#' -> Wall
     '\n' -> NewLine
 
 toChar :: Cell -> Char
 toChar chr = case chr of
     Space -> '.'
-    Elve _ -> 'E'
-    Gnome _ -> 'G'
+    Elve _ _ -> 'E'
+    Gnome _ _ -> 'G'
     Wall -> '#'
     NewLine -> '\n'
 
@@ -66,28 +66,32 @@ isSpace Space = True
 isSpace _ = False 
 
 isPlayer :: Cell -> Bool
-isPlayer (Elve _) = True
-isPlayer (Gnome _) = True
+isPlayer (Elve _ _) = True
+isPlayer (Gnome _ _) = True
 isPlayer _ = False 
 
 isGoal :: Cell -> Cell -> Bool
-isGoal (Elve _) (Gnome _) = True
-isGoal (Gnome _) (Elve _) = True
+isGoal (Elve _ _) (Gnome _ _) = True
+isGoal (Gnome _ _) (Elve _ _) = True
 isGoal _ _ = False
 
 isFoe :: Cell -> Cell -> Bool
-isFoe (Elve _) (Gnome _) = True
-isFoe (Gnome _) (Elve _) = True
-isFoe (Elve _) (Elve _) = False
-isFoe (Gnome _) (Gnome _) = False
+isFoe (Elve _ _) (Gnome _ _) = True
+isFoe (Gnome _ _) (Elve _ _) = True
+isFoe (Elve _ _) (Elve _ _) = False
+isFoe (Gnome _ _) (Gnome _ _) = False
 
 hp :: Cell -> Int
-hp (Gnome h) = h
-hp (Elve h) = h
+hp (Gnome h _) = h
+hp (Elve h _) = h
+
+power :: Cell -> Int
+power (Gnome _ a) = a
+power (Elve _ a) = a
 
 setHp :: Cell -> Int -> Cell
-setHp (Gnome _) nh = Gnome nh
-setHp (Elve _) nh = Elve nh
+setHp (Gnome _ attack) nh = Gnome nh attack
+setHp (Elve _ attack) nh = Elve nh attack
 
 allDirs :: Point -> [Point]
 allDirs (y, x) =
@@ -167,13 +171,13 @@ attack arr player = do
     let foes = Prelude.filter (isFoe cell . snd) $ Prelude.filter (isPlayer . snd) $ zip dirs near
     if Prelude.null foes then return Nothing else do
         let foe = fst $ minimumBy (compare `on` hp . snd) foes
-        killed <- damage arr foe
+        killed <- damage arr foe $ power cell
         return $ if killed then Just foe else Nothing 
 
-damage :: IOArray Point Cell -> Point -> IO Bool
-damage arr player = do
+damage :: IOArray Point Cell -> Point -> Int -> IO Bool
+damage arr player amount = do
     p <- readArray arr player
-    let nh = hp p - 3
+    let nh = hp p - amount
     if nh > 0
         then writeArray arr player (setHp p nh) >> return False       
         else writeArray arr player Space >> return True
