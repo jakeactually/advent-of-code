@@ -20,8 +20,6 @@ main = do
     let cells = Prelude.map toCell text
     arr <- newListArray ((0, 0), (31, 32)) cells :: IO (IOArray (Int, Int) Cell)
     rounds <- loop arr 0
-    renderH arr
-    putStrLn ""
     ps <- players arr
     cells <- mapM (readArray arr) ps
     let s = sum $ Prelude.map hp cells
@@ -31,9 +29,8 @@ loop :: IOArray (Int, Int) Cell -> Int -> IO Int
 loop arr i = do
     ps <- players arr
     continue <- advance arr ps
-    render arr
-    print i
-    --_ <- getLine
+    --render arr
+    --print i
     if continue then loop arr (i + 1) else return i
 
 toCell :: Char -> Cell
